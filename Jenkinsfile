@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        IMAGE_NAME = 'sampleDevops'
+        IMAGE_NAME = 'sampledevops'
         REGISTRY = '3.128.79.118:5000'
     }
     stages {
