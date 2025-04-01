@@ -1,33 +1,40 @@
 pipeline {
     agent any
     environment {
+        CLUSTER_NAME = 'sample-devops-cluster'
+        AWS_REGION = 'us-east-2'
+        DEPLOYMENT_NAME = 'java-app'
         IMAGE_NAME = 'sampledevops'
-        REGISTRY = '3.128.79.118:5000'
     }
     stages {
-        stage('Compile') {
-            steps {
-                build job: 'Compile_Job'
+        stage('Checkout Code') {
+           steps {
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: '*/main']], 
+                    userRemoteConfigs: [[url: 'https://github.com/Areeza-git/sample-devops.git']]
+                ])
             }
         }
-        stage('Test') {
+        stage('Build and Package') {
             steps {
-                build job: 'Test_Job'
+                sh 'mvn clean package'  // Ensure the WAR file is built
             }
         }
-        stage('Package') {
+        stage('Build and Push Docker Image') {
             steps {
-                build job: 'Package_Job'
+                sh '''
+                    docker build -t $IMAGE_NAME .
+                    docker tag $IMAGE_NAME:latest 438979369835.dkr.ecr.us-east-2.amazonaws.com/sample-devops:latest
+                    docker push 438979369835.dkr.ecr.us-east-2.amazonaws.com/sample-devops:latest
+                '''
             }
         }
-        stage('Build Docker Image') {
+        stage('Deploy to EKS') {
             steps {
-                sh 'docker build -t $REGISTRY/$IMAGE_NAME:latest .'
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                sh 'docker push $REGISTRY/$IMAGE_NAME:latest'
+                sh '''
+                    aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                    kubectl apply -f k8s/deploy.yaml
+                '''
             }
         }
     }
