@@ -5,7 +5,7 @@ metadata:
   labels:
     app: java-app
 spec:
-  replicas: 2  # Adjust based on your scaling needs
+  replicas: 2 
   selector:
     matchLabels:
       app: java-app
@@ -17,9 +17,9 @@ spec:
       containers:
         - name: java-app
           image: 438979369835.dkr.ecr.us-east-2.amazonaws.com/sample-devops:latest
-          imagePullPolicy: Always  # Ensures new image is always pulled
+          imagePullPolicy: Always  
           ports:
-             - containerPort: 8080  # Ensure this matches your Java app’s exposed port
+             - containerPort: 8080 
           env:
             - name: ENVIRONMENT
               value: "production"

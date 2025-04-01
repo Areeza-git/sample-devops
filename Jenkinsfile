@@ -17,7 +17,7 @@ pipeline {
         }
         stage('Build and Package') {
             steps {
-                sh 'mvn clean package'  // Ensure the WAR file is built
+                sh 'mvn clean package'  
             }
         }
         stage('Build and Push Docker Image') {
